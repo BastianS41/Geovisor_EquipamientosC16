@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css"><link rel="stylesheet" href="css/L.Control.Locate.min.css">
+        <link rel="stylesheet" href="css/qgis2web.css"><link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/leaflet-control-geocoder.Geocoder.css">
+        <link rel="stylesheet" href="css/leaflet-measure.css">
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title>Geovisor con sistemas de equipamientos Comuna 16</title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script><script src="js/L.Control.Locate.min.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/leaflet.wms.js"></script>
+        <script src="js/leaflet-control-geocoder.Geocoder.js"></script>
+        <script src="js/leaflet-measure.js"></script>
+        <script src="data/areas_priorizadas_para_el_desarrollo_equipamientos_4.js"></script>
+        <script src="data/equipamientos_deporte_5.js"></script>
+        <script src="data/equipamientos_recreacion_6.js"></script>
+        <script src="data/equipamientos_educacion_7.js"></script>
+        <script src="data/rutas_movilidad_areas_proyectos_8.js"></script>
+        <script src="data/equipamientos_culto_9.js"></script>
+        <script>
+        var highlightLayer;
+        function highlightFeature(e) {
+            highlightLayer = e.target;
+
+            if (e.target.feature.geometry.type === 'LineString') {
+              highlightLayer.setStyle({
+                color: '#ffff00',
+              });
+            } else {
+              highlightLayer.setStyle({
+                fillColor: '#ffff00',
+                fillOpacity: 1
+              });
+            }
+        }
+        var map = L.map('map', {
+            zoomControl:true, maxZoom:18, minZoom:14
+        }).fitBounds([[3.3769200005408013,-76.55299532919463],[3.4354371631482454,-76.4676439626219]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        L.control.locate({locateOptions: {maxZoom: 19}}).addTo(map);
+        var measureControl = new L.Control.Measure({
+            position: 'topleft',
+            primaryLengthUnit: 'meters',
+            secondaryLengthUnit: 'kilometers',
+            primaryAreaUnit: 'sqmeters',
+            secondaryAreaUnit: 'hectares'
+        });
+        measureControl.addTo(map);
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0]
+        .innerHTML = '';
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0]
+        .className += ' fas fa-ruler';
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+            map.setMaxBounds(map.getBounds());
+        }
+        map.createPane('pane_OSMStandard_0');
+        map.getPane('pane_OSMStandard_0').style.zIndex = 400;
+        var layer_OSMStandard_0 = L.tileLayer('http://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            pane: 'pane_OSMStandard_0',
+            opacity: 1.0,
+            attribution: '<a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors, CC-BY-SA</a>',
+            minZoom: 14,
+            maxZoom: 18,
+            minNativeZoom: 0,
+            maxNativeZoom: 19
+        });
+        layer_OSMStandard_0;
+        map.addLayer(layer_OSMStandard_0);
+        map.createPane('pane_manzanas_1');
+        map.getPane('pane_manzanas_1').style.zIndex = 401;
+        var layer_manzanas_1 = L.WMS.layer("http://44.206.139.202:8080/geoserver/wms", "s_sig3t2:manzanas", {
+            pane: 'pane_manzanas_1',
+            format: 'image/png',
+            uppercase: true,
+            transparent: true,
+            continuousWorld : true,
+            tiled: true,
+            info_format: 'text/html',
+            opacity: 1,
+            identify: false,
+            attribution: '',
+        });
+        map.addLayer(layer_manzanas_1);
+        map.createPane('pane_viasc16_2');
+        map.getPane('pane_viasc16_2').style.zIndex = 402;
+        var layer_viasc16_2 = L.WMS.layer("http://44.206.139.202:8080/geoserver/wms", "s_sig3t2:viasc16", {
+            pane: 'pane_viasc16_2',
+            format: 'image/png',
+            uppercase: true,
+            transparent: true,
+            continuousWorld : true,
+            tiled: true,
+            info_format: 'text/html',
+            opacity: 1,
+            identify: false,
+            attribution: '',
+        });
+        map.addLayer(layer_viasc16_2);
+        map.createPane('pane_comuna16_3');
+        map.getPane('pane_comuna16_3').style.zIndex = 403;
+        var layer_comuna16_3 = L.WMS.layer("http://44.206.139.202:8080/geoserver/wms", "s_sig3t2:comuna16", {
+            pane: 'pane_comuna16_3',
+            format: 'image/png',
+            uppercase: true,
+            transparent: true,
+            continuousWorld : true,
+            tiled: true,
+            info_format: 'text/html',
+            opacity: 1,
+            identify: false,
+            attribution: '',
+        });
+        map.addLayer(layer_comuna16_3);
+        function pop_areas_priorizadas_para_el_desarrollo_equipamientos_4(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (i in e.target._eventParents) {
+                        e.target._eventParents[i].resetStyle(e.target);
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2"><strong>equipamiento_priorizado</strong><br />' + (feature.properties['equipamiento_priorizado'] !== null ? autolinker.link(feature.properties['equipamiento_priorizado'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>clasificacion</strong><br />' + (feature.properties['clasificacion'] !== null ? autolinker.link(feature.properties['clasificacion'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>tipo</strong><br />' + (feature.properties['tipo'] !== null ? autolinker.link(feature.properties['tipo'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>comuna</strong><br />' + (feature.properties['comuna'] !== null ? autolinker.link(feature.properties['comuna'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_areas_priorizadas_para_el_desarrollo_equipamientos_4_0() {
+            return {
+                pane: 'pane_areas_priorizadas_para_el_desarrollo_equipamientos_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(31,120,180,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_areas_priorizadas_para_el_desarrollo_equipamientos_4');
+        map.getPane('pane_areas_priorizadas_para_el_desarrollo_equipamientos_4').style.zIndex = 404;
+        map.getPane('pane_areas_priorizadas_para_el_desarrollo_equipamientos_4').style['mix-blend-mode'] = 'normal';
+        var layer_areas_priorizadas_para_el_desarrollo_equipamientos_4 = new L.geoJson(json_areas_priorizadas_para_el_desarrollo_equipamientos_4, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_areas_priorizadas_para_el_desarrollo_equipamientos_4',
+            layerName: 'layer_areas_priorizadas_para_el_desarrollo_equipamientos_4',
+            pane: 'pane_areas_priorizadas_para_el_desarrollo_equipamientos_4',
+            onEachFeature: pop_areas_priorizadas_para_el_desarrollo_equipamientos_4,
+            style: style_areas_priorizadas_para_el_desarrollo_equipamientos_4_0,
+        });
+        bounds_group.addLayer(layer_areas_priorizadas_para_el_desarrollo_equipamientos_4);
+        map.addLayer(layer_areas_priorizadas_para_el_desarrollo_equipamientos_4);
+        function pop_equipamientos_deporte_5(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (i in e.target._eventParents) {
+                        e.target._eventParents[i].resetStyle(e.target);
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2"><strong>nombre</strong><br />' + (feature.properties['nombre'] !== null ? autolinker.link(feature.properties['nombre'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>localizaci</strong><br />' + (feature.properties['localizaci'] !== null ? autolinker.link(feature.properties['localizaci'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>servicio</strong><br />' + (feature.properties['servicio'] !== null ? autolinker.link(feature.properties['servicio'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>tipo</strong><br />' + (feature.properties['tipo'] !== null ? autolinker.link(feature.properties['tipo'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>propiedad</strong><br />' + (feature.properties['propiedad'] !== null ? autolinker.link(feature.properties['propiedad'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>numpisos</strong><br />' + (feature.properties['numpisos'] !== null ? autolinker.link(feature.properties['numpisos'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_equipamientos_deporte_5_0() {
+            return {
+                pane: 'pane_equipamientos_deporte_5',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(114,155,111,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_equipamientos_deporte_5');
+        map.getPane('pane_equipamientos_deporte_5').style.zIndex = 405;
+        map.getPane('pane_equipamientos_deporte_5').style['mix-blend-mode'] = 'normal';
+        var layer_equipamientos_deporte_5 = new L.geoJson(json_equipamientos_deporte_5, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_equipamientos_deporte_5',
+            layerName: 'layer_equipamientos_deporte_5',
+            pane: 'pane_equipamientos_deporte_5',
+            onEachFeature: pop_equipamientos_deporte_5,
+            style: style_equipamientos_deporte_5_0,
+        });
+        bounds_group.addLayer(layer_equipamientos_deporte_5);
+        map.addLayer(layer_equipamientos_deporte_5);
+        function pop_equipamientos_recreacion_6(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (i in e.target._eventParents) {
+                        e.target._eventParents[i].resetStyle(e.target);
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2"><strong>nombre</strong><br />' + (feature.properties['nombre'] !== null ? autolinker.link(feature.properties['nombre'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>localizaci</strong><br />' + (feature.properties['localizaci'] !== null ? autolinker.link(feature.properties['localizaci'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>servicio</strong><br />' + (feature.properties['servicio'] !== null ? autolinker.link(feature.properties['servicio'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>tipo</strong><br />' + (feature.properties['tipo'] !== null ? autolinker.link(feature.properties['tipo'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>propiedad</strong><br />' + (feature.properties['propiedad'] !== null ? autolinker.link(feature.properties['propiedad'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>entidad</strong><br />' + (feature.properties['entidad'] !== null ? autolinker.link(feature.properties['entidad'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_equipamientos_recreacion_6_0() {
+            return {
+                pane: 'pane_equipamientos_recreacion_6',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(232,113,141,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_equipamientos_recreacion_6');
+        map.getPane('pane_equipamientos_recreacion_6').style.zIndex = 406;
+        map.getPane('pane_equipamientos_recreacion_6').style['mix-blend-mode'] = 'normal';
+        var layer_equipamientos_recreacion_6 = new L.geoJson(json_equipamientos_recreacion_6, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_equipamientos_recreacion_6',
+            layerName: 'layer_equipamientos_recreacion_6',
+            pane: 'pane_equipamientos_recreacion_6',
+            onEachFeature: pop_equipamientos_recreacion_6,
+            style: style_equipamientos_recreacion_6_0,
+        });
+        bounds_group.addLayer(layer_equipamientos_recreacion_6);
+        map.addLayer(layer_equipamientos_recreacion_6);
+        function pop_equipamientos_educacion_7(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (i in e.target._eventParents) {
+                        e.target._eventParents[i].resetStyle(e.target);
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2"><strong>nombre</strong><br />' + (feature.properties['nombre'] !== null ? autolinker.link(feature.properties['nombre'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>localizaci</strong><br />' + (feature.properties['localizaci'] !== null ? autolinker.link(feature.properties['localizaci'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>servicio</strong><br />' + (feature.properties['servicio'] !== null ? autolinker.link(feature.properties['servicio'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>tipo</strong><br />' + (feature.properties['tipo'] !== null ? autolinker.link(feature.properties['tipo'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>nivel</strong><br />' + (feature.properties['nivel'] !== null ? autolinker.link(feature.properties['nivel'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>propiedad</strong><br />' + (feature.properties['propiedad'] !== null ? autolinker.link(feature.properties['propiedad'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_equipamientos_educacion_7_0() {
+            return {
+                pane: 'pane_equipamientos_educacion_7',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(222,219,45,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_equipamientos_educacion_7');
+        map.getPane('pane_equipamientos_educacion_7').style.zIndex = 407;
+        map.getPane('pane_equipamientos_educacion_7').style['mix-blend-mode'] = 'normal';
+        var layer_equipamientos_educacion_7 = new L.geoJson(json_equipamientos_educacion_7, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_equipamientos_educacion_7',
+            layerName: 'layer_equipamientos_educacion_7',
+            pane: 'pane_equipamientos_educacion_7',
+            onEachFeature: pop_equipamientos_educacion_7,
+            style: style_equipamientos_educacion_7_0,
+        });
+        bounds_group.addLayer(layer_equipamientos_educacion_7);
+        map.addLayer(layer_equipamientos_educacion_7);
+        function pop_rutas_movilidad_areas_proyectos_8(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (i in e.target._eventParents) {
+                        e.target._eventParents[i].resetStyle(e.target);
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2"><strong>tipo</strong><br />' + (feature.properties['tipo'] !== null ? autolinker.link(feature.properties['tipo'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>longitud</strong><br />' + (feature.properties['longitud'] !== null ? autolinker.link(feature.properties['longitud'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>comuna</strong><br />' + (feature.properties['comuna'] !== null ? autolinker.link(feature.properties['comuna'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_rutas_movilidad_areas_proyectos_8_0() {
+            return {
+                pane: 'pane_rutas_movilidad_areas_proyectos_8',
+                opacity: 1,
+                color: 'rgba(227,26,28,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 2.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_rutas_movilidad_areas_proyectos_8');
+        map.getPane('pane_rutas_movilidad_areas_proyectos_8').style.zIndex = 408;
+        map.getPane('pane_rutas_movilidad_areas_proyectos_8').style['mix-blend-mode'] = 'normal';
+        var layer_rutas_movilidad_areas_proyectos_8 = new L.geoJson(json_rutas_movilidad_areas_proyectos_8, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_rutas_movilidad_areas_proyectos_8',
+            layerName: 'layer_rutas_movilidad_areas_proyectos_8',
+            pane: 'pane_rutas_movilidad_areas_proyectos_8',
+            onEachFeature: pop_rutas_movilidad_areas_proyectos_8,
+            style: style_rutas_movilidad_areas_proyectos_8_0,
+        });
+        bounds_group.addLayer(layer_rutas_movilidad_areas_proyectos_8);
+        map.addLayer(layer_rutas_movilidad_areas_proyectos_8);
+        function pop_equipamientos_culto_9(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (i in e.target._eventParents) {
+                        e.target._eventParents[i].resetStyle(e.target);
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2"><strong>nombre</strong><br />' + (feature.properties['nombre'] !== null ? autolinker.link(feature.properties['nombre'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>localizacion</strong><br />' + (feature.properties['localizacion'] !== null ? autolinker.link(feature.properties['localizacion'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>tipo</strong><br />' + (feature.properties['tipo'] !== null ? autolinker.link(feature.properties['tipo'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>servicio</strong><br />' + (feature.properties['servicio'] !== null ? autolinker.link(feature.properties['servicio'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>comuna</strong><br />' + (feature.properties['comuna'] !== null ? autolinker.link(feature.properties['comuna'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_equipamientos_culto_9_0() {
+            return {
+                pane: 'pane_equipamientos_culto_9',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(74,234,210,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_equipamientos_culto_9');
+        map.getPane('pane_equipamientos_culto_9').style.zIndex = 409;
+        map.getPane('pane_equipamientos_culto_9').style['mix-blend-mode'] = 'normal';
+        var layer_equipamientos_culto_9 = new L.geoJson(json_equipamientos_culto_9, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_equipamientos_culto_9',
+            layerName: 'layer_equipamientos_culto_9',
+            pane: 'pane_equipamientos_culto_9',
+            onEachFeature: pop_equipamientos_culto_9,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_equipamientos_culto_9_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_equipamientos_culto_9);
+        map.addLayer(layer_equipamientos_culto_9);
+            var title = new L.Control();
+            title.onAdd = function (map) {
+                this._div = L.DomUtil.create('div', 'info');
+                this.update();
+                return this._div;
+            };
+            title.update = function () {
+                this._div.innerHTML = '<h2>Geovisor con sistemas de equipamientos Comuna 16</h2>';
+            };
+            title.addTo(map);
+            var abstract = new L.Control({'position':'bottomleft'});
+            abstract.onAdd = function (map) {
+                this._div = L.DomUtil.create('div',
+                'leaflet-control abstract');
+                this._div.id = 'abstract'
+
+                    abstract.show();
+                    return this._div;
+                };
+                abstract.show = function () {
+                    this._div.classList.remove("abstract");
+                    this._div.classList.add("abstractUncollapsed");
+                    this._div.innerHTML = 'Geovisor con los sistemas de equipamientos contenidos para la comuna 16 con contenido temático pertenecientes a la comuna 16.';
+            };
+            abstract.addTo(map);
+        var osmGeocoder = new L.Control.Geocoder({
+            collapsed: true,
+            position: 'topleft',
+            text: 'Search',
+            title: 'Testing'
+        }).addTo(map);
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .className += ' fa fa-search';
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .title += 'Search for a place';
+        var baseMaps = {};
+        L.control.layers(baseMaps,{'<img src="legend/equipamientos_culto_9.png" /> equipamientos_culto': layer_equipamientos_culto_9,'<img src="legend/rutas_movilidad_areas_proyectos_8.png" /> rutas_movilidad_areas_proyectos': layer_rutas_movilidad_areas_proyectos_8,'<img src="legend/equipamientos_educacion_7.png" /> equipamientos_educacion': layer_equipamientos_educacion_7,'<img src="legend/equipamientos_recreacion_6.png" /> equipamientos_recreacion': layer_equipamientos_recreacion_6,'<img src="legend/equipamientos_deporte_5.png" /> equipamientos_deporte': layer_equipamientos_deporte_5,'<img src="legend/areas_priorizadas_para_el_desarrollo_equipamientos_4.png" /> areas_priorizadas_para_el_desarrollo_equipamientos': layer_areas_priorizadas_para_el_desarrollo_equipamientos_4,"comuna16": layer_comuna16_3,"viasc16": layer_viasc16_2,"manzanas": layer_manzanas_1,"OSM Standard": layer_OSMStandard_0,}).addTo(map);
+        setBounds();
+        </script>
+    </body>
+</html>
